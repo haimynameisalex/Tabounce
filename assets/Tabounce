@@ -1,0 +1,91 @@
+--!nonstrict
+
+--------------- / Module script programmed by @ pro_gamercgdd \ --------------
+--------------- / Credit is not required, but it will be appreciated if you give credit! \ -------------------
+
+---------------- / Function Explanation \ ---------------------------------------------
+
+--------------------- / addDebounce takes 3 arguments: table, debounceTime and value. It will add a debounce to the specific value without yield.
+--------------------- / returnDebounce takes 1 argument: table. It will return the debounce value.
+--------------------- / cancelDebounce takes 1 argument: table. It will automaticaly set the debounce to false
+
+--------------- / Tabounce (Table Debounce) \ ------------
+
+local tabounce = {}
+
+-------------- / SERVICES \ -----------
+
+local RunService = game:GetService("RunService")
+
+-------------- / TABLES \ --------------
+
+local tables = {
+	
+}
+
+---------------- / Functions \ -----------------------	
+
+local cooldownStart = 0
+
+function tabounce.addDebounce(t, debounceTime: number, value)
+	
+	------ / Check if given arguments are in the appropriate type \ -------
+	assert(typeof(t) == "table", "Argument 1 must be a table!")
+	assert(typeof(debounceTime) == "number", "Argument 2 must be a number!")
+	
+	if value == nil then
+		warn("Argument 3 is nil!")
+		return
+	end
+	------ / Create a table inside of tables and Insert table values \ --------
+	if not tables[t] then
+		tables[t] = {}
+	end
+	tables[t] = {
+		debounceTime = debounceTime,
+		debounce = true,
+		value = value,
+	}
+	------ / Debounce \ -------
+	if not t[value] then
+		t[value] = 0
+	end
+	
+	if os.clock() - (t[value] or 0) < debounceTime then return end
+	t[value] = os.clock()
+	tables[t].debounce = true
+	
+	---- / ADD CONNECTION \ -----
+	
+	local connection
+	
+	---- / SET DEBOUNCE TO FALSE AFTER DEBOUNCE TIME \ -----
+	connection = RunService.Heartbeat:Connect(function()
+		if os.clock() - t[value] >= debounceTime then
+			tables[t].debounce = false
+			connection:Disconnect()
+		end
+	end)
+end
+
+function tabounce.returnDebounce(t)
+	------ / Check if given arguments are in the appropriate type \ -------
+	assert(typeof(t) == "table", "Argument 1 must be a table!")
+	------ / Return status \ ------
+	if tables[t] then
+		return tables[t].debounce
+	else
+		return nil
+	end
+end
+
+function tabounce.cancelDebounce(t)
+	------ / Check if given arguments are in the appropriate type \ -------
+	assert(typeof(t) == "table", "Argument 1 must be a table!")
+	------ / Cancel table debounce \ ------
+	if tables[t] then
+		tables[t].debounce = false
+	end
+end
+
+return tabounce
